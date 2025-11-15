@@ -1,0 +1,39 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+ name: microservices-ingress
+ namespace: microservices
+ annotations:
+   # CHANGE: Removed NGINX annotation.
+  
+   # CHANGE: Added AWS Load Balancer (ALB) settings below.
+   kubernetes.io/ingress.class: alb
+   alb.ingress.kubernetes.io/scheme: internet-facing # Make a public-facing load balancer
+   alb.ingress.kubernetes.io/target-type: ip        # Send traffic directly to pods (better)
+spec:
+ ingressClassName: alb # Tell Kubernetes to use the 'alb' controller
+ rules:
+ # CHANGE: Removed 'host: microservices.local'. We will use the public AWS URL.
+ - http:
+     paths:
+     - path: /users
+       pathType: Prefix
+       backend:
+         service:
+           name: user-service
+           port:
+             number: 3001
+     - path: /products
+       pathType: Prefix
+       backend:
+         service:
+           name: product-service
+           port:
+             number: 3002
+     - path: /orders
+       pathType: Prefix
+       backend:
+         service:
+           name: order-service
+           port:
+             number: 3003
